@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AssetTrackingEF.Model {
+namespace AssetTrackingEF.Models {
     abstract class Asset {
         protected Asset(string assetType, string brand, string modelName, DateTime purchaseDate, decimal purchasePrice, string serialNumber) {
             AssetType = assetType;

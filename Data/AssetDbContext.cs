@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AssetTrackingEF.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace AssetTrackingEF.Model {
+namespace AssetTrackingEF.Data {
     internal class AssetDbContext: DbContext {
         private readonly string _connectionString =
             @"Server=localhost\SQLEXPRESS;Database=asset_tracking_ef;Trusted_Connection=True;TrustServerCertificate=True;";
