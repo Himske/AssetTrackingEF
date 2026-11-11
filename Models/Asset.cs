@@ -39,7 +39,7 @@ namespace AssetTrackingEF.Models {
             else {
                 return "EXPIRED";
             }
-            return string.Empty;
+            return "NORMAL";
         }
     }
 }

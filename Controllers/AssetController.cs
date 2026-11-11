@@ -14,11 +14,11 @@ namespace AssetTrackingEF.Controllers {
         }
 
         public void CreateAsset(string assetType, string brand, string modelName, DateTime purchaseDate, decimal purchasePrice, string serialNumber) {
-            if (new[] { "Desktop Computer", "Laptop" }.Contains(assetType)) {
+            if (new[] { "Desktop", "Laptop" }.Contains(assetType)) {
                 _context.Assets.Add(new ComputerAsset(assetType, brand, modelName, purchaseDate, purchasePrice, serialNumber));
                 _context.SaveChanges();
             }
-            else if (new[] { "iPhone", "Samsung", "Nokia", "Tablet" }.Contains(assetType)) {
+            else if (new[] { "Mobile", "Tablet" }.Contains(assetType)) {
                 _context.Assets.Add(new MobileAsset(assetType, brand, modelName, purchaseDate, purchasePrice, serialNumber));
                 _context.SaveChanges();
             }
