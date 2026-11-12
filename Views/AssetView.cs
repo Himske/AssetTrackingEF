@@ -39,6 +39,7 @@ namespace AssetTrackingEF.Views {
                         break;
                     case "Show All Assets":
                         ShowAllAssets();
+                        Pause();
                         break;
                     case "Update Asset":
                         UpdateAsset();
@@ -60,7 +61,13 @@ namespace AssetTrackingEF.Views {
             var assetType = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("Select asset type")
-                    .AddChoices(["Laptop", "Desktop", "Mobile", "Tablet"]));
+                    .AddChoices(["Laptop", "Desktop", "Mobile", "Tablet", "Cancel"]));
+
+            if (assetType == "Cancel") {
+                AnsiConsole.MarkupLine("[yellow]Add asset canceled.[/]");
+                Pause();
+                return;
+            }
 
             var brand = AnsiConsole.Ask<string>("Brand:");
             var modelName = AnsiConsole.Ask<string>("Model:");
@@ -80,12 +87,22 @@ namespace AssetTrackingEF.Views {
 
         private void ShowAllAssets() {
             DisplayAssets(_controller.GetAllAssets());
-            Pause();
         }
 
         private void UpdateAsset() {
             ShowAllAssets();
-            var id = AnsiConsole.Ask<int>("Enter asset ID to update:");
+            var idInput = AnsiConsole.Ask<string>("Enter asset ID to update ([grey]or X to cancel[/]):");
+            if (idInput.Equals("x", StringComparison.OrdinalIgnoreCase)) {
+                AnsiConsole.MarkupLine("[yellow]Update canceled.[/]");
+                Pause();
+                return;
+            }
+
+            if (!int.TryParse(idInput, out var id)) {
+                AnsiConsole.MarkupLine("[red]Invalid asset ID.[/]");
+                Pause();
+                return;
+            }
 
             Asset asset;
             try {
@@ -122,7 +139,18 @@ namespace AssetTrackingEF.Views {
 
         private void DeleteAsset() {
             ShowAllAssets();
-            var id = AnsiConsole.Ask<int>("Enter asset ID to delete:");
+            var idInput = AnsiConsole.Ask<string>("Enter asset ID to delete ([grey]or X to cancel[/]):");
+            if (idInput.Equals("x", StringComparison.OrdinalIgnoreCase)) {
+                AnsiConsole.MarkupLine("[yellow]Delete canceled.[/]");
+                Pause();
+                return;
+            }
+
+            if (!int.TryParse(idInput, out var id)) {
+                AnsiConsole.MarkupLine("[red]Invalid asset ID.[/]");
+                Pause();
+                return;
+            }
 
             if (!AnsiConsole.Confirm("Are you sure you want to delete this asset?")) {
                 return;
