@@ -22,7 +22,7 @@ namespace AssetTrackingEF.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("AssetTrackingEF.Models.Asset", b =>
+            modelBuilder.Entity("AssetTrackingEF.Model.Asset", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,9 +47,6 @@ namespace AssetTrackingEF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("OfficeId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime2");
 
@@ -62,8 +59,6 @@ namespace AssetTrackingEF.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OfficeId");
-
                     b.ToTable("Assets");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("Asset");
@@ -71,79 +66,18 @@ namespace AssetTrackingEF.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("AssetTrackingEF.Models.CurrencyRate", b =>
+            modelBuilder.Entity("AssetTrackingEF.Model.ComputerAsset", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Rate")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CurrencyRates");
-                });
-
-            modelBuilder.Entity("AssetTrackingEF.Models.Office", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Offices");
-                });
-
-            modelBuilder.Entity("AssetTrackingEF.Models.ComputerAsset", b =>
-                {
-                    b.HasBaseType("AssetTrackingEF.Models.Asset");
+                    b.HasBaseType("AssetTrackingEF.Model.Asset");
 
                     b.HasDiscriminator().HasValue("ComputerAsset");
                 });
 
-            modelBuilder.Entity("AssetTrackingEF.Models.MobileAsset", b =>
+            modelBuilder.Entity("AssetTrackingEF.Model.MobileAsset", b =>
                 {
-                    b.HasBaseType("AssetTrackingEF.Models.Asset");
+                    b.HasBaseType("AssetTrackingEF.Model.Asset");
 
                     b.HasDiscriminator().HasValue("MobileAsset");
-                });
-
-            modelBuilder.Entity("AssetTrackingEF.Models.Asset", b =>
-                {
-                    b.HasOne("AssetTrackingEF.Models.Office", "Office")
-                        .WithMany("Assets")
-                        .HasForeignKey("OfficeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Office");
-                });
-
-            modelBuilder.Entity("AssetTrackingEF.Models.Office", b =>
-                {
-                    b.Navigation("Assets");
                 });
 #pragma warning restore 612, 618
         }
