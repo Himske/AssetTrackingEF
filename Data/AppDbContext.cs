@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace AssetTrackingEF.Data {
-    internal class AssetDbContext: DbContext {
+    internal class AppDbContext: DbContext {
         private readonly string _connectionString =
             @"Server=localhost\SQLEXPRESS;Database=asset_tracking_ef;Trusted_Connection=True;TrustServerCertificate=True;";
 
@@ -16,5 +16,6 @@ namespace AssetTrackingEF.Data {
         public DbSet<Asset> Assets { get; set; }
         public DbSet<ComputerAsset> ComputerAssets { get; set; }
         public DbSet<MobileAsset> MobileAssets { get; set; }
+        public DbSet<Office> Offices { get; set; }
     }
 }

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AssetTrackingEF.Migrations
 {
-    [DbContext(typeof(AssetDbContext))]
+    [DbContext(typeof(Data.AppDbContext))]
     partial class AssetDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -47,6 +47,9 @@ namespace AssetTrackingEF.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("OfficeId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime2");
 
@@ -59,11 +62,38 @@ namespace AssetTrackingEF.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OfficeId");
+
                     b.ToTable("Assets");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("Asset");
 
                     b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("AssetTrackingEF.Models.Office", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Offices");
                 });
 
             modelBuilder.Entity("AssetTrackingEF.Models.ComputerAsset", b =>
@@ -78,6 +108,22 @@ namespace AssetTrackingEF.Migrations
                     b.HasBaseType("AssetTrackingEF.Models.Asset");
 
                     b.HasDiscriminator().HasValue("MobileAsset");
+                });
+
+            modelBuilder.Entity("AssetTrackingEF.Models.Asset", b =>
+                {
+                    b.HasOne("AssetTrackingEF.Models.Office", "Office")
+                        .WithMany("Assets")
+                        .HasForeignKey("OfficeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Office");
+                });
+
+            modelBuilder.Entity("AssetTrackingEF.Models.Office", b =>
+                {
+                    b.Navigation("Assets");
                 });
 #pragma warning restore 612, 618
         }

@@ -3,23 +3,24 @@ using System.Collections.Generic;
 using System.Text;
 using AssetTrackingEF.Data;
 using AssetTrackingEF.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AssetTrackingEF.Controllers {
     internal class AssetController {
-        private readonly AssetDbContext _context;
+        private readonly AppDbContext _context;
 
-        public AssetController(AssetDbContext context) {
+        public AssetController(AppDbContext context) {
             _context = context;
             _context.Database.EnsureCreated(); // Create the database if it doesn't exist
         }
 
-        public void CreateAsset(string assetType, string brand, string modelName, DateTime purchaseDate, decimal purchasePrice, string serialNumber) {
+        public void CreateAsset(string assetType, string brand, string modelName, DateTime purchaseDate, decimal purchasePrice, string serialNumber, int officeId) {
             if (new[] { "Desktop", "Laptop" }.Contains(assetType)) {
-                _context.Assets.Add(new ComputerAsset(assetType, brand, modelName, purchaseDate, purchasePrice, serialNumber));
+                _context.Assets.Add(new ComputerAsset(assetType, brand, modelName, purchaseDate, purchasePrice, serialNumber, officeId));
                 _context.SaveChanges();
             }
             else if (new[] { "Mobile", "Tablet" }.Contains(assetType)) {
-                _context.Assets.Add(new MobileAsset(assetType, brand, modelName, purchaseDate, purchasePrice, serialNumber));
+                _context.Assets.Add(new MobileAsset(assetType, brand, modelName, purchaseDate, purchasePrice, serialNumber, officeId));
                 _context.SaveChanges();
             }
             else {
@@ -28,7 +29,7 @@ namespace AssetTrackingEF.Controllers {
         }
 
         public List<Asset> GetAllAssets() {
-            return [.. _context.Assets];
+            return [.. _context.Assets.Include(a => a.Office)];
         }
 
         public Asset GetAssetById(int assetId) {
@@ -55,16 +56,6 @@ namespace AssetTrackingEF.Controllers {
                 _context.Assets.Remove(asset);
                 _context.SaveChanges();
             }
-        }
-
-        public int DeleteAllAssets() {
-            var assets = _context.Assets.ToList();
-            if (assets.Count == 0) {
-                return 0;
-            }
-            _context.Assets.RemoveRange(assets);
-            _context.SaveChanges();
-            return assets.Count;
         }
     }
 }

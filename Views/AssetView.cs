@@ -14,10 +14,10 @@ namespace AssetTrackingEF.Views {
             _controller = controller;
         }
 
-        public void Run() {
-            bool running = true;
+        public void ShowAssetMenu() {
+            bool inAssetMenu = true;
 
-            while (running) {
+            while (inAssetMenu) {
                 AnsiConsole.Clear();
                 AnsiConsole.MarkupLine("[bold cyan]Asset Tracking[/]");
 
@@ -29,8 +29,7 @@ namespace AssetTrackingEF.Views {
                             "Show All Assets",
                             "Update Asset",
                             "Delete Asset",
-                            "Admin",
-                            "Exit"
+                            "Back"
                         ]));
 
                 switch (choice) {
@@ -47,11 +46,8 @@ namespace AssetTrackingEF.Views {
                     case "Delete Asset":
                         DeleteAsset();
                         break;
-                    case "Admin":
-                        ShowAdminMenu();
-                        break;
-                    case "Exit":
-                        running = false;
+                    case "Back":
+                        inAssetMenu = false;
                         break;
                 }
             }
@@ -79,8 +75,13 @@ namespace AssetTrackingEF.Views {
                         ? ValidationResult.Success()
                         : ValidationResult.Error("Price must be 0 or greater.")));
             var serialNumber = AnsiConsole.Ask<string>("Serial number:");
+            var officeId = AnsiConsole.Prompt(
+                new TextPrompt<int>("Office ID:")
+                    .Validate(value => value > 0
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error("Office ID must be greater than 0.")));
 
-            _controller.CreateAsset(assetType, brand, modelName, purchaseDate, purchasePrice, serialNumber);
+            _controller.CreateAsset(assetType, brand, modelName, purchaseDate, purchasePrice, serialNumber, officeId);
             AnsiConsole.MarkupLine("[green]Asset added.[/]");
             Pause();
         }
@@ -161,39 +162,6 @@ namespace AssetTrackingEF.Views {
             Pause();
         }
 
-        private void ShowAdminMenu() {
-            bool inAdmin = true;
-
-            while (inAdmin) {
-                AnsiConsole.Clear();
-                var adminChoice = AnsiConsole.Prompt(
-                    new SelectionPrompt<string>()
-                        .Title("Admin")
-                        .AddChoices([
-                            "Seed Database",
-                            "Delete All Assets",
-                            "Back"
-                        ]));
-
-                switch (adminChoice) {
-                    case "Seed Database":
-                        GenerateData.SeedDatabase();
-                        Pause();
-                        break;
-                    case "Delete All Assets":
-                        if (AnsiConsole.Confirm("Delete all assets?")) {
-                            int deletedCount = _controller.DeleteAllAssets();
-                            AnsiConsole.MarkupLine($"[green]{deletedCount} assets deleted.[/]");
-                        }
-                        Pause();
-                        break;
-                    case "Back":
-                        inAdmin = false;
-                        break;
-                }
-            }
-        }
-
         private static void Pause() {
             AnsiConsole.MarkupLine("\nPress any key to continue...");
             Console.ReadKey(true);
@@ -213,6 +181,8 @@ namespace AssetTrackingEF.Views {
             table.AddColumn("Purchase Date");
             table.AddColumn("Price");
             table.AddColumn("Serial Number");
+            table.AddColumn("Office");
+            table.AddColumn("Country");
 
             var orderedAssets = assets
                 .OrderBy(asset => asset.AssetType)
@@ -233,7 +203,9 @@ namespace AssetTrackingEF.Views {
                     $"[{color}]{Markup.Escape(asset.ModelName)}[/]",
                     $"[{color}]{asset.PurchaseDate:d}[/]",
                     $"[{color}]{asset.PurchasePrice.ToString("C", CultureInfo.GetCultureInfo("en-US"))}[/]",
-                    $"[{color}]{Markup.Escape(asset.SerialNumber)}[/]");
+                    $"[{color}]{Markup.Escape(asset.SerialNumber)}[/]",
+                    $"[{color}]{asset.Office.Name}[/]",
+                    $"[{color}]{asset.Office.Country}[/]");
             }
 
             AnsiConsole.Write(table);

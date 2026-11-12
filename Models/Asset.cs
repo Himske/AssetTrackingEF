@@ -5,13 +5,14 @@ using System.Text;
 
 namespace AssetTrackingEF.Models {
     abstract class Asset {
-        protected Asset(string assetType, string brand, string modelName, DateTime purchaseDate, decimal purchasePrice, string serialNumber) {
+        protected Asset(string assetType, string brand, string modelName, DateTime purchaseDate, decimal purchasePrice, string serialNumber, int officeId) {
             AssetType = assetType;
             Brand = brand;
             ModelName = modelName;
             PurchaseDate = purchaseDate;
             PurchasePrice = purchasePrice;
             SerialNumber = serialNumber;
+            OfficeId = officeId;
         }
 
         public int Id { get; set; }
@@ -20,10 +21,9 @@ namespace AssetTrackingEF.Models {
         public string ModelName { get; set; }
         public DateTime PurchaseDate { get; set; }
         public decimal PurchasePrice { get; set; } // In USD
-        //public decimal LocalPrice { get; set; }
-        //public string OfficeLocation { get; set; } // Add in step 3
         public string SerialNumber { get; set; }
-        //public string EmployeeName { get; set; }
+        public int OfficeId { get; set; } // Foreign key for the related Office
+        public Office Office { get; set; } = null!; // Navigation property for the related Office
 
         public string GetStatus() {
             // Assets "expire" after 3 years.

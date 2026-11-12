@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AssetTrackingEF.Migrations
 {
-    [DbContext(typeof(AssetDbContext))]
+    [DbContext(typeof(Data.AppDbContext))]
     [Migration("20261112090310_InitialCreate")]
     partial class InitialCreate
     {
