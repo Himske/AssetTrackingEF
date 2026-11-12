@@ -33,9 +33,5 @@ namespace AssetTrackingEF.Views {
                 Console.ResetColor();
             }
         }
-
-        public static void DeleteAssetConfirmation(int assetId) {
-            Console.WriteLine($"Asset with ID {assetId} has been deleted.");
-        }
     }
 }
