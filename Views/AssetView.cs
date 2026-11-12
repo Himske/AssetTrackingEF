@@ -9,9 +9,11 @@ using System.Text;
 namespace AssetTrackingEF.Views {
     internal class AssetView {
         private readonly AssetController _controller;
+        private readonly CurrencyController _currencyController;
 
-        public AssetView(AssetController controller) {
+        public AssetView(AssetController controller, CurrencyController currencyController) {
             _controller = controller;
+            _currencyController = currencyController;
         }
 
         public void ShowAssetMenu() {
@@ -87,7 +89,7 @@ namespace AssetTrackingEF.Views {
         }
 
         private void ShowAllAssets() {
-            DisplayAssets(_controller.GetAllAssets());
+            DisplayAssets(_controller.GetAllAssets(), _currencyController);
         }
 
         private void UpdateAsset() {
@@ -167,7 +169,7 @@ namespace AssetTrackingEF.Views {
             Console.ReadKey(true);
         }
 
-        public static void DisplayAssets(List<Asset> assets) {
+        public static void DisplayAssets(List<Asset> assets, CurrencyController _currencyController) {
             if (assets.Count == 0) {
                 AnsiConsole.MarkupLine("[yellow]No assets found.[/]");
                 return;
@@ -196,13 +198,18 @@ namespace AssetTrackingEF.Views {
                     _ => "white"
                 };
 
+                var localPurchasePrice = asset.PurchasePrice;
+                if (asset.Office.Currency != "USD") {
+                    localPurchasePrice = _currencyController.ConvertCurrency(asset.Office.Currency.ToLower(), asset.PurchasePrice);
+                }
+
                 table.AddRow(
                     $"[{color}]{asset.Id}[/]",
                     $"[{color}]{Markup.Escape(asset.AssetType)}[/]",
                     $"[{color}]{Markup.Escape(asset.Brand)}[/]",
                     $"[{color}]{Markup.Escape(asset.ModelName)}[/]",
                     $"[{color}]{asset.PurchaseDate:d}[/]",
-                    $"[{color}]{asset.PurchasePrice.ToString("C", CultureInfo.GetCultureInfo("en-US"))}[/]",
+                    $"[{color}]{CurrencyController.FormatPrice(localPurchasePrice, asset.Office.Currency)}[/]",
                     $"[{color}]{Markup.Escape(asset.SerialNumber)}[/]",
                     $"[{color}]{asset.Office.Name}[/]",
                     $"[{color}]{asset.Office.Country}[/]");

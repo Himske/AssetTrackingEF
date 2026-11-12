@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AssetTrackingEF.Migrations
 {
-    [DbContext(typeof(Data.AppDbContext))]
+    [DbContext(typeof(AppDbContext))]
     partial class AssetDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
@@ -69,6 +69,26 @@ namespace AssetTrackingEF.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("Asset");
 
                     b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("AssetTrackingEF.Models.CurrencyRate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CurrencyRates");
                 });
 
             modelBuilder.Entity("AssetTrackingEF.Models.Office", b =>

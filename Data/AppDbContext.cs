@@ -17,5 +17,6 @@ namespace AssetTrackingEF.Data {
         public DbSet<ComputerAsset> ComputerAssets { get; set; }
         public DbSet<MobileAsset> MobileAssets { get; set; }
         public DbSet<Office> Offices { get; set; }
+        public DbSet<CurrencyRate> CurrencyRates { get; set; }
     }
 }

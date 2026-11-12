@@ -6,7 +6,8 @@ using Spectre.Console;
 
 using var context = new AppDbContext();
 var assetController = new AssetController(context);
-var assetView = new AssetView(assetController);
+var currencyController = new CurrencyController(context);
+var assetView = new AssetView(assetController, currencyController);
 var officeController = new OfficeController(context);
 var officeView = new OfficeView(officeController);
 var adminController = new AdminController(context);
