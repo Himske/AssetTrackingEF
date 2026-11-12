@@ -22,7 +22,7 @@ namespace AssetTrackingEF.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("AssetTrackingEF.Model.Asset", b =>
+            modelBuilder.Entity("AssetTrackingEF.Models.Asset", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,16 +66,16 @@ namespace AssetTrackingEF.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("AssetTrackingEF.Model.ComputerAsset", b =>
+            modelBuilder.Entity("AssetTrackingEF.Models.ComputerAsset", b =>
                 {
-                    b.HasBaseType("AssetTrackingEF.Model.Asset");
+                    b.HasBaseType("AssetTrackingEF.Models.Asset");
 
                     b.HasDiscriminator().HasValue("ComputerAsset");
                 });
 
-            modelBuilder.Entity("AssetTrackingEF.Model.MobileAsset", b =>
+            modelBuilder.Entity("AssetTrackingEF.Models.MobileAsset", b =>
                 {
-                    b.HasBaseType("AssetTrackingEF.Model.Asset");
+                    b.HasBaseType("AssetTrackingEF.Models.Asset");
 
                     b.HasDiscriminator().HasValue("MobileAsset");
                 });
