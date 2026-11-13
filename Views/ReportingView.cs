@@ -5,6 +5,7 @@ using System.Globalization;
 
 namespace AssetTrackingEF.Views {
     internal class ReportingView {
+        private const int ReportWidth = 80;
         private readonly ReportingController _controller;
         private readonly CurrencyController _currencyController;
 
@@ -53,10 +54,10 @@ namespace AssetTrackingEF.Views {
 
             foreach (var office in offices) {
                 var heading = $"{office.Name.ToUpperInvariant()} OFFICE";
-                AnsiConsole.MarkupLine($"[bold cyan]=============== {Markup.Escape(heading)} ===============[/]");
+                WriteReportBanner(heading);
                 AnsiConsole.WriteLine();
-                AnsiConsole.MarkupLine("ID   Asset    Brand        Price       Status");
-                AnsiConsole.MarkupLine("-------------------------------------------------");
+                AnsiConsole.MarkupLine($"{"ID",-4} {"Asset",-8} {"Brand",-20} {"Price",-22} Status");
+                WriteReportRule('-');
 
                 foreach (var asset in office.Assets.OrderBy(asset => asset.Id)) {
                     var status = asset.GetStatus();
@@ -68,13 +69,13 @@ namespace AssetTrackingEF.Views {
                     };
                     var price = FormatOfficeCurrency(asset.PurchasePrice, office.Currency);
                     AnsiConsole.MarkupLine(
-                        $"{asset.Id,-4} {Markup.Escape(asset.AssetType),-8} {Markup.Escape(asset.Brand),-12} {Markup.Escape(price),-11} [{color}]{status}[/]");
+                        $"{asset.Id,-4} {Markup.Escape(asset.AssetType),-8} {Markup.Escape(asset.Brand),-20} {Markup.Escape(price),-22} [{color}]{status}[/]");
                 }
 
                 var totalValue = FormatOfficeCurrency(office.Assets.Sum(asset => asset.PurchasePrice), office.Currency);
                 AnsiConsole.MarkupLine($"\nTotal Office Value: [bold]{Markup.Escape(totalValue)}[/]");
                 AnsiConsole.WriteLine();
-                AnsiConsole.MarkupLine("================================================");
+                WriteReportRule('=');
                 AnsiConsole.WriteLine();
             }
 
@@ -82,22 +83,25 @@ namespace AssetTrackingEF.Views {
         }
 
         private void ShowAssetCountsStatusAndHighestPrices() {
-            AnsiConsole.MarkupLine("[bold cyan]===================== REPORT ============================[/]");
+            WriteReportBanner("REPORT");
             AnsiConsole.WriteLine();
 
             AnsiConsole.MarkupLine("[bold]Office Asset Counts[/]");
-            AnsiConsole.MarkupLine("---------------------------------------------------------");
+            WriteReportRule('-');
             var offices = _controller.GetOfficesWithAssets();
+            var officeNameWidth = offices.Count == 0 ? 0 : offices.Max(office => office.Name.Length);
             foreach (var office in offices) {
-                AnsiConsole.MarkupLine($"{Markup.Escape(office.Name)} : {office.Assets.Count}");
+                var officeName = office.Name.PadRight(officeNameWidth);
+                AnsiConsole.MarkupLine($"{Markup.Escape(officeName)} : {office.Assets.Count}");
             }
             if (offices.Count == 0) {
                 AnsiConsole.MarkupLine("No offices found.");
             }
 
             AnsiConsole.WriteLine();
+            AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[bold]Assets Near Or Expired[/]");
-            AnsiConsole.MarkupLine("---------------------------------------------------------");
+            WriteReportRule('-');
             var assetsToReview = _controller.GetAssetsCloseToOrExpired();
             if (assetsToReview.Count == 0) {
                 AnsiConsole.MarkupLine("No assets are near expiration or expired.");
@@ -113,8 +117,9 @@ namespace AssetTrackingEF.Views {
             }
 
             AnsiConsole.WriteLine();
+            AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[bold]Most Expensive Assets[/]");
-            AnsiConsole.MarkupLine("---------------------------------------------------------");
+            WriteReportRule('-');
             var mostExpensiveAssets = _controller.GetAssetsByPurchasePrice();
             if (mostExpensiveAssets.Count == 0) {
                 AnsiConsole.MarkupLine("No assets found.");
@@ -132,8 +137,24 @@ namespace AssetTrackingEF.Views {
             }
 
             AnsiConsole.WriteLine();
-            AnsiConsole.MarkupLine("[bold cyan]=========================================================[/]");
+            WriteReportRule('=');
             Pause();
+        }
+
+        private static void WriteReportRule(char character) {
+            AnsiConsole.MarkupLine(new string(character, ReportWidth));
+        }
+
+        private static void WriteReportBanner(string title) {
+            var maximumTitleLength = ReportWidth - 4;
+            if (title.Length > maximumTitleLength) {
+                title = title[..maximumTitleLength];
+            }
+
+            var bannerTitle = $" {title} ";
+            var leftPadding = (ReportWidth - bannerTitle.Length) / 2;
+            var rightPadding = ReportWidth - bannerTitle.Length - leftPadding;
+            AnsiConsole.MarkupLine($"[bold cyan]{new string('=', leftPadding)}{Markup.Escape(bannerTitle)}{new string('=', rightPadding)}[/]");
         }
 
         private static void WriteTextTable(IReadOnlyList<string> headers, List<string[]> rows) {
@@ -146,7 +167,7 @@ namespace AssetTrackingEF.Views {
             }
 
             AnsiConsole.MarkupLine(Markup.Escape(FormatRow(headers)));
-            AnsiConsole.MarkupLine(new string('-', widths.Sum() + (headers.Count - 1) * 2));
+            WriteReportRule('-');
             foreach (var row in rows) {
                 AnsiConsole.MarkupLine(Markup.Escape(FormatRow(row)));
             }
