@@ -16,7 +16,7 @@ namespace AssetTrackingEF.Views {
 
             while (inOfficeMenu) {
                 AnsiConsole.Clear();
-                AnsiConsole.MarkupLine("[bold cyan]Asset Tracking[/]");
+                ConsoleHeader.Render();
 
                 var officeChoice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()

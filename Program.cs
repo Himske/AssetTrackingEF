@@ -21,7 +21,7 @@ bool running = true;
 
 while (running) {
     AnsiConsole.Clear();
-    AnsiConsole.MarkupLine("[bold cyan]Asset Tracking[/]");
+    ConsoleHeader.Render();
 
     var choice = AnsiConsole.Prompt(
         new SelectionPrompt<string>()

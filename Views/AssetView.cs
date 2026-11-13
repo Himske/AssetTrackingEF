@@ -23,7 +23,7 @@ namespace AssetTrackingEF.Views {
 
             while (inAssetMenu) {
                 AnsiConsole.Clear();
-                AnsiConsole.MarkupLine("[bold cyan]Asset Tracking[/]");
+                ConsoleHeader.Render();
 
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
@@ -108,6 +108,7 @@ namespace AssetTrackingEF.Views {
 
             while (filtering) {
                 AnsiConsole.Clear();
+                ConsoleHeader.Render();
                 AnsiConsole.MarkupLine($"[bold cyan]{Markup.Escape(filterDescription)}[/]");
                 DisplayAssets(filteredAssets, _currencyController);
 

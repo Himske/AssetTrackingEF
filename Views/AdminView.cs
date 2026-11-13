@@ -19,7 +19,7 @@ namespace AssetTrackingEF.Views {
 
             while (inAdmin) {
                 AnsiConsole.Clear();
-                AnsiConsole.MarkupLine("[bold cyan]Asset Tracking[/]");
+                ConsoleHeader.Render();
 
                 var adminChoice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
