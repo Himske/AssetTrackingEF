@@ -20,6 +20,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Spectre.Console" Version="0.57.2" />
+    <None Update="Data\usd.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

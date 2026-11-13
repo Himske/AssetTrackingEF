@@ -12,6 +12,8 @@ var officeController = new OfficeController(context);
 var officeView = new OfficeView(officeController);
 var adminController = new AdminController(context);
 var adminView = new AdminView(adminController);
+var reportingController = new ReportingController(context);
+var reportingView = new ReportingView(reportingController, currencyController);
 bool running = true;
 
 while (running) {
@@ -24,6 +26,7 @@ while (running) {
             .AddChoices([
                 "Asset",
                 "Office",
+                "Reporting",
                 "Admin",
                 "Exit"
             ]));
@@ -37,6 +40,9 @@ while (running) {
             break;
         case "Admin":
             adminView.ShowAdminMenu();
+            break;
+        case "Reporting":
+            reportingView.ShowReportingMenu();
             break;
         case "Exit":
             running = false;

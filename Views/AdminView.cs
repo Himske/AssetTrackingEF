@@ -26,7 +26,8 @@ namespace AssetTrackingEF.Views {
                         .Title("Admin")
                         .AddChoices([
                             "Seed Database",
-                            "Delete All Assets",
+                            "Empty Database",
+                            "Refresh Currency Rates",
                             "Back"
                         ]));
 
@@ -35,11 +36,20 @@ namespace AssetTrackingEF.Views {
                         GenerateData.SeedDatabase();
                         Pause();
                         break;
-                    case "Delete All Assets":
-                        if (AnsiConsole.Confirm("Delete all assets?")) {
-                            int deletedCount = _controller.DeleteAllAssets();
-                            AnsiConsole.MarkupLine($"[green]{deletedCount} assets deleted.[/]");
+                    case "Empty Database":
+                        if (AnsiConsole.Confirm("Empty the database?")) {
+                            int deletedAssets = _controller.DeleteAllAssets();
+                            int deletedOffices = _controller.DeleteAllOffices();
+                            int deletedCurrencyRates = _controller.DeleteAllCurrencyRates();
+                            AnsiConsole.MarkupLine($"[green]{deletedAssets} assets deleted.[/]");
+                            AnsiConsole.MarkupLine($"[green]{deletedOffices} offices deleted.[/]");
+                            AnsiConsole.MarkupLine($"[green]{deletedCurrencyRates} currency rates deleted.[/]");
                         }
+                        Pause();
+                        break;
+                    case "Refresh Currency Rates":
+                        _controller.RefreshCurrencyRates();
+                        AnsiConsole.MarkupLine("[green]Currency rates refreshed.[/]");
                         Pause();
                         break;
                     case "Back":
