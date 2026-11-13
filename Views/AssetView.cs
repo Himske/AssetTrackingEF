@@ -43,7 +43,6 @@ namespace AssetTrackingEF.Views {
                         break;
                     case "Show All Assets":
                         ShowAllAssets();
-                        Pause();
                         break;
                     case "Search":
                         ShowSearchMenu();
@@ -102,7 +101,66 @@ namespace AssetTrackingEF.Views {
         }
 
         private void ShowAllAssets() {
-            DisplayAssets(_controller.GetAllAssets(), _currencyController);
+            var allAssets = _controller.GetAllAssets();
+            var filteredAssets = allAssets;
+            var filterDescription = "All Assets";
+            bool filtering = true;
+
+            while (filtering) {
+                AnsiConsole.Clear();
+                AnsiConsole.MarkupLine($"[bold cyan]{Markup.Escape(filterDescription)}[/]");
+                DisplayAssets(filteredAssets, _currencyController);
+
+                var choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Filter assets")
+                        .AddChoices([
+                            "Show Only Expired",
+                            "Show Only Computers",
+                            "Show Only Mobile Devices",
+                            "Show Assets by Office",
+                            "Show All Assets",
+                            "Back"
+                        ]));
+
+                switch (choice) {
+                    case "Show Only Expired":
+                        filteredAssets = allAssets.Where(asset => asset.GetStatus() == "EXPIRED").ToList();
+                        filterDescription = "Expired Assets";
+                        break;
+                    case "Show Only Computers":
+                        filteredAssets = allAssets.Where(asset => asset is ComputerAsset).ToList();
+                        filterDescription = "Computer Assets";
+                        break;
+                    case "Show Only Mobile Devices":
+                        filteredAssets = allAssets.Where(asset => asset is MobileAsset).ToList();
+                        filterDescription = "Mobile Assets";
+                        break;
+                    case "Show Assets by Office":
+                        var offices = _officeController.GetAllOffices();
+                        if (offices.Count == 0) {
+                            AnsiConsole.MarkupLine("[yellow]No offices found.[/]");
+                            Pause();
+                            break;
+                        }
+
+                        var office = AnsiConsole.Prompt(
+                            new SelectionPrompt<Office>()
+                                .Title("Select office")
+                                .UseConverter(selectedOffice => selectedOffice.Name)
+                                .AddChoices(offices));
+                        filteredAssets = allAssets.Where(asset => asset.OfficeId == office.Id).ToList();
+                        filterDescription = $"Assets at {office.Name}";
+                        break;
+                    case "Show All Assets":
+                        filteredAssets = allAssets;
+                        filterDescription = "All Assets";
+                        break;
+                    case "Back":
+                        filtering = false;
+                        break;
+                }
+            }
         }
 
         private void ShowSearchMenu() {
@@ -194,7 +252,7 @@ namespace AssetTrackingEF.Views {
         }
 
         private void UpdateAsset() {
-            ShowAllAssets();
+            DisplayAssets(_controller.GetAllAssets(), _currencyController);
             var idInput = AnsiConsole.Ask<string>("Enter asset ID to update ([grey]or X to cancel[/]):");
             if (idInput.Equals("x", StringComparison.OrdinalIgnoreCase)) {
                 AnsiConsole.MarkupLine("[yellow]Update canceled.[/]");
@@ -242,7 +300,7 @@ namespace AssetTrackingEF.Views {
         }
 
         private void DeleteAsset() {
-            ShowAllAssets();
+            DisplayAssets(_controller.GetAllAssets(), _currencyController);
             var idInput = AnsiConsole.Ask<string>("Enter asset ID to delete ([grey]or X to cancel[/]):");
             if (idInput.Equals("x", StringComparison.OrdinalIgnoreCase)) {
                 AnsiConsole.MarkupLine("[yellow]Delete canceled.[/]");
