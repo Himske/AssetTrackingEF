@@ -3,12 +3,15 @@ using AssetTrackingEF.Data;
 using AssetTrackingEF.Models;
 using AssetTrackingEF.Views;
 using Spectre.Console;
+using System.Text;
+
+Console.OutputEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
 using var context = new AppDbContext();
 var assetController = new AssetController(context);
 var currencyController = new CurrencyController(context);
-var assetView = new AssetView(assetController, currencyController);
 var officeController = new OfficeController(context);
+var assetView = new AssetView(assetController, currencyController, officeController);
 var officeView = new OfficeView(officeController);
 var adminController = new AdminController(context);
 var adminView = new AdminView(adminController);

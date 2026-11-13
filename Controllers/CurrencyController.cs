@@ -24,7 +24,6 @@ namespace AssetTrackingEF.Controllers {
             if (string.IsNullOrWhiteSpace(currencyCode))
                 throw new ArgumentException("Currency code cannot be null or empty.", nameof(currencyCode));
 
-            // Find a culture that uses this currency code
             var culture = CultureInfo
                 .GetCultures(CultureTypes.SpecificCultures)
                 .Select(c => new { Culture = c, Region = new RegionInfo(c.Name) })
@@ -33,8 +32,16 @@ namespace AssetTrackingEF.Controllers {
             if (culture == null)
                 throw new ArgumentException($"No culture found for currency code '{currencyCode}'.", nameof(currencyCode));
 
-            // Format using the found culture
-            return string.Format(culture.Culture, "{0:C}", amount);
+            var formattingCulture = (CultureInfo)culture.Culture.Clone();
+            if (currencyCode.Equals("EUR", StringComparison.OrdinalIgnoreCase)) {
+                return $"{amount.ToString("N2", formattingCulture)} \u20AC";
+            }
+
+            var currencySymbol = currencyCode.Equals("JPY", StringComparison.OrdinalIgnoreCase)
+                ? "¥"
+                : culture.Region.CurrencySymbol;
+            formattingCulture.NumberFormat.CurrencySymbol = currencySymbol;
+            return amount.ToString("C", formattingCulture);
         }
     }
 }

@@ -10,10 +10,12 @@ namespace AssetTrackingEF.Views {
     internal class AssetView {
         private readonly AssetController _controller;
         private readonly CurrencyController _currencyController;
+        private readonly OfficeController _officeController;
 
-        public AssetView(AssetController controller, CurrencyController currencyController) {
+        public AssetView(AssetController controller, CurrencyController currencyController, OfficeController officeController) {
             _controller = controller;
             _currencyController = currencyController;
+            _officeController = officeController;
         }
 
         public void ShowAssetMenu() {
@@ -77,13 +79,20 @@ namespace AssetTrackingEF.Views {
                         ? ValidationResult.Success()
                         : ValidationResult.Error("Price must be 0 or greater.")));
             var serialNumber = AnsiConsole.Ask<string>("Serial number:");
-            var officeId = AnsiConsole.Prompt(
-                new TextPrompt<int>("Office ID:")
-                    .Validate(value => value > 0
-                        ? ValidationResult.Success()
-                        : ValidationResult.Error("Office ID must be greater than 0.")));
+            var offices = _officeController.GetAllOffices();
+            if (offices.Count == 0) {
+                AnsiConsole.MarkupLine("[yellow]No offices found. Add an office before adding an asset.[/]");
+                Pause();
+                return;
+            }
 
-            _controller.CreateAsset(assetType, brand, modelName, purchaseDate, purchasePrice, serialNumber, officeId);
+            var office = AnsiConsole.Prompt(
+                new SelectionPrompt<Office>()
+                    .Title("Select office")
+                    .UseConverter(selectedOffice => selectedOffice.Name)
+                    .AddChoices(offices));
+
+            _controller.CreateAsset(assetType, brand, modelName, purchaseDate, purchasePrice, serialNumber, office.Id);
             AnsiConsole.MarkupLine("[green]Asset added.[/]");
             Pause();
         }
@@ -209,10 +218,10 @@ namespace AssetTrackingEF.Views {
                     $"[{color}]{Markup.Escape(asset.Brand)}[/]",
                     $"[{color}]{Markup.Escape(asset.ModelName)}[/]",
                     $"[{color}]{asset.PurchaseDate:d}[/]",
-                    $"[{color}]{CurrencyController.FormatPrice(localPurchasePrice, asset.Office.Currency)}[/]",
+                    $"[{color}]{Markup.Escape(CurrencyController.FormatPrice(localPurchasePrice, asset.Office.Currency))}[/]",
                     $"[{color}]{Markup.Escape(asset.SerialNumber)}[/]",
-                    $"[{color}]{asset.Office.Name}[/]",
-                    $"[{color}]{asset.Office.Country}[/]");
+                    $"[{color}]{Markup.Escape(asset.Office.Name)}[/]",
+                    $"[{color}]{Markup.Escape(asset.Office.Country)}[/]");
             }
 
             AnsiConsole.Write(table);
