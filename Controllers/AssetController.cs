@@ -32,6 +32,30 @@ namespace AssetTrackingEF.Controllers {
             return [.. _context.Assets.Include(a => a.Office)];
         }
 
+        public List<Asset> SearchAssetsByBrand(string brand) {
+            return [.. _context.Assets
+                .Include(asset => asset.Office)
+                .Where(asset => asset.Brand.Contains(brand))];
+        }
+
+        public List<Asset> SearchAssetsByModel(string model) {
+            return [.. _context.Assets
+                .Include(asset => asset.Office)
+                .Where(asset => asset.ModelName.Contains(model))];
+        }
+
+        public List<Asset> GetAssetsByOffice(int officeId) {
+            return [.. _context.Assets
+                .Include(asset => asset.Office)
+                .Where(asset => asset.OfficeId == officeId)];
+        }
+
+        public List<Asset> GetAssetsByPurchaseYear(int year) {
+            return [.. _context.Assets
+                .Include(asset => asset.Office)
+                .Where(asset => asset.PurchaseDate.Year == year)];
+        }
+
         public Asset GetAssetById(int assetId) {
             var asset = _context.Assets.Find(assetId);
             return asset ?? throw new ArgumentException("Asset not found.");

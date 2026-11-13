@@ -31,6 +31,7 @@ namespace AssetTrackingEF.Views {
                         .AddChoices([
                             "Add Asset",
                             "Show All Assets",
+                            "Search",
                             "Update Asset",
                             "Delete Asset",
                             "Back"
@@ -43,6 +44,9 @@ namespace AssetTrackingEF.Views {
                     case "Show All Assets":
                         ShowAllAssets();
                         Pause();
+                        break;
+                    case "Search":
+                        ShowSearchMenu();
                         break;
                     case "Update Asset":
                         UpdateAsset();
@@ -99,6 +103,94 @@ namespace AssetTrackingEF.Views {
 
         private void ShowAllAssets() {
             DisplayAssets(_controller.GetAllAssets(), _currencyController);
+        }
+
+        private void ShowSearchMenu() {
+            bool inSearchMenu = true;
+
+            while (inSearchMenu) {
+                var choice = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("Search assets")
+                        .AddChoices([
+                            "Search by Brand",
+                            "Search by Model",
+                            "Search by Office",
+                            "Search by Purchase Year",
+                            "Back"
+                        ]));
+
+                switch (choice) {
+                    case "Search by Brand":
+                        SearchByBrand();
+                        break;
+                    case "Search by Model":
+                        SearchByModel();
+                        break;
+                    case "Search by Office":
+                        SearchByOffice();
+                        break;
+                    case "Search by Purchase Year":
+                        SearchByPurchaseYear();
+                        break;
+                    case "Back":
+                        inSearchMenu = false;
+                        break;
+                }
+            }
+        }
+
+        private void SearchByBrand() {
+            var brand = AnsiConsole.Prompt(
+                new TextPrompt<string>("Enter brand to search for:")
+                    .Validate(value => !string.IsNullOrWhiteSpace(value)
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error("Brand search term cannot be empty.")));
+            ShowSearchResults(_controller.SearchAssetsByBrand(brand.Trim()));
+        }
+
+        private void SearchByModel() {
+            var model = AnsiConsole.Prompt(
+                new TextPrompt<string>("Enter model to search for:")
+                    .Validate(value => !string.IsNullOrWhiteSpace(value)
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error("Model search term cannot be empty.")));
+            ShowSearchResults(_controller.SearchAssetsByModel(model.Trim()));
+        }
+
+        private void SearchByOffice() {
+            var offices = _officeController.GetAllOffices();
+            if (offices.Count == 0) {
+                AnsiConsole.MarkupLine("[yellow]No offices found.[/]");
+                Pause();
+                return;
+            }
+
+            var office = AnsiConsole.Prompt(
+                new SelectionPrompt<Office>()
+                    .Title("Select office")
+                    .UseConverter(selectedOffice => selectedOffice.Name)
+                    .AddChoices(offices));
+            ShowSearchResults(_controller.GetAssetsByOffice(office.Id));
+        }
+
+        private void SearchByPurchaseYear() {
+            var year = AnsiConsole.Prompt(
+                new TextPrompt<int>("Enter purchase year:")
+                    .Validate(value => value is >= 1 and <= 9999
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error("Enter a year between 1 and 9999.")));
+            ShowSearchResults(_controller.GetAssetsByPurchaseYear(year));
+        }
+
+        private void ShowSearchResults(List<Asset> assets) {
+            if (assets.Count == 0) {
+                AnsiConsole.MarkupLine("[yellow]No assets were found.[/]");
+            }
+            else {
+                DisplayAssets(assets, _currencyController);
+            }
+            Pause();
         }
 
         private void UpdateAsset() {
