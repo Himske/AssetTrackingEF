@@ -166,8 +166,15 @@ namespace AssetTrackingEF.Views {
 
         private void ShowSearchMenu() {
             bool inSearchMenu = true;
+            List<Asset>? searchResults = null;
 
             while (inSearchMenu) {
+                AnsiConsole.Clear();
+                ConsoleHeader.Render();
+                if (searchResults != null) {
+                    ShowSearchResults(searchResults);
+                }
+
                 var choice = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("Search assets")
@@ -181,16 +188,16 @@ namespace AssetTrackingEF.Views {
 
                 switch (choice) {
                     case "Search by Brand":
-                        SearchByBrand();
+                        searchResults = SearchByBrand();
                         break;
                     case "Search by Model":
-                        SearchByModel();
+                        searchResults = SearchByModel();
                         break;
                     case "Search by Office":
-                        SearchByOffice();
+                        searchResults = SearchByOffice();
                         break;
                     case "Search by Purchase Year":
-                        SearchByPurchaseYear();
+                        searchResults = SearchByPurchaseYear();
                         break;
                     case "Back":
                         inSearchMenu = false;
@@ -199,30 +206,28 @@ namespace AssetTrackingEF.Views {
             }
         }
 
-        private void SearchByBrand() {
+        private List<Asset> SearchByBrand() {
             var brand = AnsiConsole.Prompt(
                 new TextPrompt<string>("Enter brand to search for:")
                     .Validate(value => !string.IsNullOrWhiteSpace(value)
                         ? ValidationResult.Success()
                         : ValidationResult.Error("Brand search term cannot be empty.")));
-            ShowSearchResults(_controller.SearchAssetsByBrand(brand.Trim()));
+            return _controller.SearchAssetsByBrand(brand.Trim());
         }
 
-        private void SearchByModel() {
+        private List<Asset> SearchByModel() {
             var model = AnsiConsole.Prompt(
                 new TextPrompt<string>("Enter model to search for:")
                     .Validate(value => !string.IsNullOrWhiteSpace(value)
                         ? ValidationResult.Success()
                         : ValidationResult.Error("Model search term cannot be empty.")));
-            ShowSearchResults(_controller.SearchAssetsByModel(model.Trim()));
+            return _controller.SearchAssetsByModel(model.Trim());
         }
 
-        private void SearchByOffice() {
+        private List<Asset> SearchByOffice() {
             var offices = _officeController.GetAllOffices();
             if (offices.Count == 0) {
-                AnsiConsole.MarkupLine("[yellow]No offices found.[/]");
-                Pause();
-                return;
+                return [];
             }
 
             var office = AnsiConsole.Prompt(
@@ -230,16 +235,16 @@ namespace AssetTrackingEF.Views {
                     .Title("Select office")
                     .UseConverter(selectedOffice => selectedOffice.Name)
                     .AddChoices(offices));
-            ShowSearchResults(_controller.GetAssetsByOffice(office.Id));
+            return _controller.GetAssetsByOffice(office.Id);
         }
 
-        private void SearchByPurchaseYear() {
+        private List<Asset> SearchByPurchaseYear() {
             var year = AnsiConsole.Prompt(
                 new TextPrompt<int>("Enter purchase year:")
                     .Validate(value => value is >= 1 and <= 9999
                         ? ValidationResult.Success()
                         : ValidationResult.Error("Enter a year between 1 and 9999.")));
-            ShowSearchResults(_controller.GetAssetsByPurchaseYear(year));
+            return _controller.GetAssetsByPurchaseYear(year);
         }
 
         private void ShowSearchResults(List<Asset> assets) {
@@ -249,7 +254,7 @@ namespace AssetTrackingEF.Views {
             else {
                 DisplayAssets(assets, _currencyController);
             }
-            Pause();
+            AnsiConsole.WriteLine();
         }
 
         private void UpdateAsset() {
